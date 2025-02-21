@@ -52,14 +52,36 @@
    "e03731c09a4047199bc074d8e05a1ad3",
    "2251e3c151c94944ae9a4e73203909b0",
    "f86975d8fa37405a93467756fd331079" // Add more IDs as needed
- ];
+];
+ // ArcGIS Portal URL and credentials
+ const portalUrl = "https://your-portal-url.com/arcgis"; // Replace with your ArcGIS portal URL
+ const username = "your-username"; // Replace with your ArcGIS username
+ const password = "your-password"; // Replace with your ArcGIS password
+ // Function to authenticate with ArcGIS portal
+ async function authenticate() {
+   try {
+     const credentials = await arcgisRest.UserSession.login({
+       username,
+       password,
+       portal: portalUrl
+     });
+     return credentials;
+   } catch (error) {
+     console.error("Authentication failed:", error);
+     throw error;
+   }
+ }
  // Function to fetch survey details and populate the table
  async function fetchSurveys() {
    const tableBody = document.querySelector("#surveyTable tbody");
+   // Authenticate with ArcGIS portal
+   const session = await authenticate();
    for (const itemID of itemIDs) {
      try {
        // Fetch the survey item using ArcGIS API
-       const item = await gis.content.get(itemID);
+       const item = await arcgisRest.getItemData(itemID, {
+         authentication: session
+       });
        const createdDate = new Date(item.created).toLocaleDateString();
        const endDate = new Date(item.modified).toLocaleDateString(); // Replace with your logic for end date
        // Create a new row for the table
@@ -78,8 +100,6 @@
    // Refresh DataTables to apply sorting
    $('#surveyTable').DataTable().draw();
  }
- // Initialize the ArcGIS GIS object
- const gis = new arcgisGIS();
  // Fetch and populate surveys when the page loads
  fetchSurveys();
 </script>
