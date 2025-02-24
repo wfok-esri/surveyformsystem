@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey123 Forms</title>
+<!-- Include DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<style>
+ table {
+   width: 100%;
+   border-collapse: collapse;
+ }
+ th, td {
+   border: 1px solid #ddd;
+   padding: 8px;
+   text-align: left;
+ }
+ th {
+   background-color: #f2f2f2;
+ }
+</style>
+</head>
+<body>
+<h1>Survey123 Forms</h1>
+<table id="surveyTable">
+<thead>
+<tr>
+<th>Survey Name</th>
+<th>Link</th>
+<th>Created Date</th>
+<th>End Date</th>
+</tr>
+</thead>
+<tbody>
+<!-- Rows will be populated dynamically -->
+</tbody>
+</table>
+<!-- Include jQuery and DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<!-- Include ArcGIS REST JS -->
+<script src="https://unpkg.com/@esri/arcgis-rest-request@4.0.0/dist/umd/request.umd.js"></script>
+<script src="https://unpkg.com/@esri/arcgis-rest-auth@4.0.0/dist/umd/auth.umd.js"></script>
+<script>
+ // Initialize the table with DataTables
+ $(document).ready(function () {
+   $('#surveyTable').DataTable();
+ });
+ // Array of survey item IDs
+ const itemIDs = [
+   "36bc38a4821b4416a184aeb160c81640", // Replace with your actual item IDs
+   "e03731c09a4047199bc074d8e05a1ad3",
+   "2251e3c151c94944ae9a4e73203909b0",
+   "f86975d8fa37405a93467756fd331079" // Add more IDs as needed
+];
+ // ArcGIS Portal URL and credentials
+ const portalUrl = "https://pc224.esrichina.hk/portal"; // Replace with your ArcGIS portal URL
+ const username = "gisadmin"; // Replace with your ArcGIS username
+ const password = "Esri210422"; // Replace with your ArcGIS password
+ // Function to authenticate with ArcGIS portal
+ async function authenticate() {
+   try {
+     const session = await arcgisRest.auth.UserSession.login({
+       username,
+       password,
+       portal: portalUrl
+     });
+     return session;
+   } catch (error) {
+     console.error("Authentication failed:", error);
+     throw error;
+   }
+ }
+ // Function to fetch survey details and populate the table
+ async function fetchSurveys() {
+   const tableBody = document.querySelector("#surveyTable tbody");
+   // Authenticate with ArcGIS portal
+   const session = await authenticate();
+   for (const itemID of itemIDs) {
+     try {
+       // Fetch the survey item using ArcGIS REST JS
+       const item = await arcgisRest.request(`https://pc224.esrichina.hk/portal/sharing/rest/content/items/${itemID}`, {
+         params: {
+           f: "json"
+         },
+         authentication: session
+       });
+       const createdDate = new Date(item.created).toLocaleDateString();
+       const endDate = new Date(item.modified).toLocaleDateString(); // Replace with your logic for end date
+       // Create a new row for the table
+       const row = document.createElement("tr");
+       row.innerHTML = `
+<td>${item.title}</td>
+<td><a href="${item.url}" target="_blank">Open Survey</a></td>
+<td>${createdDate}</td>
+<td>${endDate}</td>
+       `;
+       tableBody.appendChild(row);
+     } catch (error) {
+       console.error(`Error fetching survey with ID ${itemID}:`, error);
+     }
+   }
+   // Refresh DataTables to apply sorting
+   $('#surveyTable').DataTable().draw();
+ }
+ // Fetch and populate surveys when the page loads
+ fetchSurveys();
+</script>
+</body>
+</html>
