@@ -44,11 +44,12 @@
  <!-- Include ArcGIS REST JS -->
 <script src="https://unpkg.com/@esri/arcgis-rest-request@4.0.0/dist/bundled/request.umd.js"></script>
 <script src="https://unpkg.com/@esri/arcgis-rest-auth@4.0.0/dist/bundled/auth.umd.js"></script>
-<script src="js/arcgis-rest-request.umd.js"></script>
+<!-- <script src="js/arcgis-rest-request.umd.js"></script>
 <script src="js/arcgis-rest-auth.umd.js"></script>
 <script src="https://wfok-esri.github.io/surveyformsystem/js/arcgis-rest-request.umd.js"></script>
-<script src="https://wfok-esri.github.io/surveyformsystem/js/arcgis-rest-auth.umd.js"></script>
+<script src="https://wfok-esri.github.io/surveyformsystem/js/arcgis-rest-auth.umd.js"></script> -->
 <script>
+ const arcgisRest = window.arcgisRest;
  // Initialize the table with DataTables
  $(document).ready(function () {
    $('#surveyTable').DataTable();
